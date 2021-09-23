@@ -58,18 +58,23 @@ describe Spree::OrdersController, type: :controller do
           expect(flash[:error]).to eq("Order population failed")
         end
 
-        it "shows an error when quantity is invalid" do
+        it 'should not add line item when given a quantity of -1' do
           request.env["HTTP_REFERER"] = spree.root_path
 
-          post(
-            :populate,
-            params: { variant_id: variant.id, quantity: -1 }
-          )
+          expect do
+            post :populate, params: { variant_id: variant.id, quantity: -1 }
+          end.to_not change { order.line_items.size }
+          expect(response).to_not redirect_to(spree.root_path)
+        end
 
+        it 'shows an error when given a quantity of 2,147,483,648' do
+          request.env["HTTP_REFERER"] = spree.root_path
+
+          expect do
+            post :populate, params: { variant_id: variant.id, quantity: 2_147_483_648 }
+          end.to_not change { order.line_items.size }
           expect(response).to redirect_to(spree.root_path)
-          expect(flash[:error]).to eq(
-            I18n.t('spree.please_enter_reasonable_quantity')
-          )
+          expect(flash[:error]).to eq('Quantity is not reasonable')
         end
 
         context "when quantity is empty string" do
