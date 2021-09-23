@@ -18,12 +18,14 @@ module Spree
             params[:line_item][:quantity] || 1,
             options: line_item_params[:options].to_h
           )
+        rescue ActiveRecord::RecordInvalid => error
+          @order.errors.add(:base, error.record.errors.full_messages.join(", "))
         end
 
-        if @line_item.errors.empty?
+        if @order.errors.empty?
           respond_with(@line_item, status: 201, default_template: :show)
         else
-          invalid_resource!(@line_item)
+          invalid_resource!(@order)
         end
       end
 
