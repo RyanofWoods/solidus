@@ -11,11 +11,14 @@ module Spree
 
       def create
         variant = Spree::Variant.find(params[:line_item][:variant_id])
-        @line_item = @order.contents.add(
-          variant,
-          params[:line_item][:quantity] || 1,
-          options: line_item_params[:options].to_h
-        )
+
+        begin
+          @line_item = @order.contents.add(
+            variant,
+            params[:line_item][:quantity] || 1,
+            options: line_item_params[:options].to_h
+          )
+        end
 
         if @line_item.errors.empty?
           respond_with(@line_item, status: 201, default_template: :show)

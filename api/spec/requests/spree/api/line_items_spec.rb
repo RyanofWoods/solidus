@@ -102,6 +102,14 @@ module Spree::Api
         expect(json_response[:quantity]).to eq 1
       end
 
+      it 'does not crash if adding a line item raises an error' do
+        allow_any_instance_of(Spree::LineItem).to receive(:valid?).and_return(false)
+
+        expect do
+          post spree.api_order_line_items_path(order), params: { line_item: { variant_id: product.master.to_param, quantity: 1 } }
+        end.to_not raise_error(ActiveRecord::RecordInvalid)
+      end
+
       it "increases a line item's quantity if it exists already" do
         order.line_items.create(variant_id: product.master.id, quantity: 10)
         post spree.api_order_line_items_path(order), params: { line_item: { variant_id: product.master.to_param, quantity: 1 } }
