@@ -190,4 +190,22 @@ RSpec.describe Spree::LineItem, type: :model do
       expect(subject.currency).to eq("USD")
     end
   end
+
+  describe '#quantity' do
+    it 'should be normalized to 0 when given -1' do
+      line_item.quantity = -1
+      line_item.save
+
+      expect(line_item.quantity).to eq(0)
+    end
+
+    it 'should be invalid when given 2,147,483,648' do
+      line_item.quantity = 2_147_483_648
+      line_item.save
+
+      expect(line_item).not_to be_valid
+      expect(line_item.errors[:quantity])
+        .to include 'is not reasonable'
+    end
+  end
 end
