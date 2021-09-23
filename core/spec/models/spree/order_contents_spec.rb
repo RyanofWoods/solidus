@@ -43,6 +43,22 @@ RSpec.describe Spree::OrderContents, type: :model do
         end
       end
 
+      context "with quantity=-1" do
+        it "normalizes to 0" do
+          line_item = subject.add(variant, -1)
+
+          expect(line_item.quantity).to eq(0)
+        end
+      end
+
+      context "with quantity=2,147,483,648" do
+        it "raises an error" do
+          expect do
+            subject.add(variant, 2_147_483_648)
+          end.to raise_error(ActiveRecord::RecordInvalid)
+        end
+      end
+
       context "called multiple times" do
         it "creates correct inventory" do
           subject.add(variant, 1, shipment: shipment)
