@@ -110,6 +110,11 @@ module Spree::Api
         end.to_not raise_error(ActiveRecord::RecordInvalid)
       end
 
+      it ' if given quantity is 3b' do
+        post spree.api_order_line_items_path(order), params: { line_item: { variant_id: product.master.to_param, quantity: 3_000_000_000 } }
+        expect(response.status).to eq(201)
+      end
+
       it "increases a line item's quantity if it exists already" do
         order.line_items.create(variant_id: product.master.id, quantity: 10)
         post spree.api_order_line_items_path(order), params: { line_item: { variant_id: product.master.to_param, quantity: 1 } }
