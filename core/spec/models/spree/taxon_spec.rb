@@ -176,7 +176,14 @@ RSpec.describe Spree::Taxon, type: :model do
     end
   end
 
-  context "validations" do
+  context "extra validations" do
+    around do |example|
+      with_unfrozen_spree_preference_store do
+        Spree::Config.extra_taxon_validations = true
+        example.run
+      end
+    end
+
     context "taxonomy_id validations" do
       let(:taxonomy) { create(:taxonomy) }
       let(:taxon) { taxonomy.taxons.create(name: 'New node') }

@@ -3,10 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe Spree::Taxonomy, type: :model do
-  context "validations" do
+  context "extra validations" do
     subject { build(:taxonomy, name: 'Brand') }
 
     let!(:taxonomy) { create(:taxonomy, name: 'Brand') }
+
+    around do |example|
+      with_unfrozen_spree_preference_store do
+        Spree::Config.extra_taxonomy_validations = true
+        example.run
+      end
+    end
 
     context "name validations" do
       it "ensures Taxonomies must have unique names" do
